@@ -11,15 +11,15 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:gravity="bottom|end"
-        android:hint="0"
+        android:text="0"
         android:textSize="36sp"
         android:textColor="#000000" />
 
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="160dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:rowCount="5"
         android:columnCount="4">
 
