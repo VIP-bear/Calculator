@@ -7,14 +7,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private EditText text;          // 文本框
+    private TextView formula_text;  // 算式
 
     private Button clear;           // 清零
     private Button neg;             // 取相反数
     private Button per;             // 取百分数
+
+    private Button root;            // 开根号
+    private Button sin;            // sin
+    private Button cos;            // cos
+    private Button back;            // 回退
 
     private Button add;             // 加
     private Button sub;             // 减
@@ -44,6 +51,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 隐藏标题栏
+        if (getSupportActionBar() != null){
+            getSupportActionBar().hide();
+        }
 
         initLayout();       // 初始化变量
         setClickEvent();    // 设置监听器
@@ -89,6 +101,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.result:
                 withResult();
                 break;
+            case R.id.root:
+                String r = String.valueOf(Math.sqrt(Double.parseDouble(text.getText().toString())));
+                inputNum_1 = formatNum(r);
+                text.setText(inputNum_1);
+                break;
+            case R.id.sin:
+                String s = String.valueOf(Math.sin(Double.parseDouble(text.getText().toString())));
+                inputNum_1 = formatNum(s);
+                text.setText(inputNum_1);
+                break;
+            case R.id.cos:
+                String c = String.valueOf(Math.cos(Double.parseDouble(text.getText().toString())));
+                inputNum_1 = formatNum(c);
+                text.setText(inputNum_1);
+                break;
+            case R.id.back:
+                backSpace();
+                break;
             default:
                 break;
         }
@@ -115,12 +145,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     re = input1 / input2;
                 }
             }
-            inputNum_1 = String.valueOf(re);    // 将结果赋值给   第一个数
+
+            // 格式化结果
+            String newRe = formatNum(String.valueOf(re));
+
+            // 显示算式
+            String output = inputNum_1 + " " + ope + " "
+                    + inputNum_2 + "\n=" + newRe;
+            formula_text.setText(output);
+
+            inputNum_1 = String.valueOf(newRe);    // 将结果赋值给   第一个数
             ope = "";
             inputNum_2 = "";
             text.setText(inputNum_1);   // 显示结果
         }
 
+    }
+
+    // 格式化数字
+    private String formatNum(String str){
+        if (str.contains(".")){
+            int p = str.indexOf(".");
+            int flag = 0;
+            int i = 0;
+            for (i = p+1; i < str.length(); i++){
+                if (str.charAt(i) != '0'){
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag == 0 || (i - p > 12)){
+                str = str.substring(0, p);
+            }
+        }
+        return str;
     }
 
     // 显示数字在界面上
@@ -144,18 +202,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    // 回退一个字符
+    private void backSpace(){
+        String str = text.getText().toString();
+        text.setText(str.substring(0, str.length()-1));
+        if (text.getText().toString().equals("")){
+            text.setText("0");
+        }
+    }
+
     // 取%（除以100）
     private String div_100(){
         String s = text.getText().toString();
 
         if (s.contains(".")){   // 字符串包含小数点
-            return String.valueOf(Double.parseDouble(s)/100);
+            inputNum_1 = String.valueOf(Double.parseDouble(s)/100);
+            return inputNum_1;
         }else {
             int num = Integer.parseInt(s);
             if (num % 100 == 0){    // 能整除100
-                return String.valueOf(num % 100);
+                inputNum_1 = String.valueOf(num / 100);
+                return inputNum_1;
             }else {
-                return String.valueOf(num / 100.0);
+                inputNum_1 = String.valueOf(num / 100.0);
+                return inputNum_1;
             }
         }
     }
@@ -177,10 +247,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initLayout(){
 
         text = findViewById(R.id.text_view);
+        formula_text = findViewById(R.id.formula_text);
 
         clear = findViewById(R.id.clear);
         neg = findViewById(R.id.neg);
         per = findViewById(R.id.per);
+
+        root = findViewById(R.id.root);
+        sin = findViewById(R.id.sin);
+        cos = findViewById(R.id.cos);
+        back = findViewById(R.id.back);
 
         add = findViewById(R.id.add);
         sub = findViewById(R.id.sub);
@@ -208,6 +284,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         clear.setOnClickListener(this);
         neg.setOnClickListener(this);
         per.setOnClickListener(this);
+
+        root.setOnClickListener(this);
+        sin.setOnClickListener(this);
+        cos.setOnClickListener(this);
+        back.setOnClickListener(this);
 
         add.setOnClickListener(this);
         sub.setOnClickListener(this);

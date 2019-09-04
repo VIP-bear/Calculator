@@ -4,16 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#0A0A0A"
     tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/formula_text"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:gravity="right|top"
+        android:text=""
+        android:textSize="36sp"
+        android:textColor="#ffffff"/>
 
     <EditText
         android:id="@+id/text_view"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="100dp"
         android:gravity="bottom|end"
+        android:focusable="false"
         android:text="0"
         android:textSize="36sp"
-        android:textColor="#000000" />
+        android:textColor="#ffffff" />
 
     <GridLayout
         android:layout_width="match_parent"
@@ -24,11 +35,51 @@
         android:columnCount="4">
 
         <Button
+            android:id="@+id/root"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="5dp"
+            android:text="√"
+            android:background="#E9E5E5"
+            android:textSize="32sp" />
+
+        <Button
+            android:id="@+id/sin"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="5dp"
+            android:text="sin"
+            android:textAllCaps="false"
+            android:background="#E9E5E5"
+            android:textSize="32sp" />
+
+        <Button
+            android:id="@+id/cos"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="5dp"
+            android:text="cos"
+            android:textAllCaps="false"
+            android:background="#E9E5E5"
+            android:textSize="32sp" />
+
+        <Button
+            android:id="@+id/back"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="5dp"
+            android:text="←"
+            android:background="#FF9800"
+            android:textColor="#ffffff"
+            android:textSize="32sp" />
+
+        <Button
             android:id="@+id/clear"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="C"
+            android:background="#E9E5E5"
             android:textSize="32sp" />
 
         <Button
@@ -37,6 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="+/-"
+            android:background="#E9E5E5"
             android:textSize="32sp" />
 
         <Button
@@ -45,6 +97,7 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="%"
+            android:background="#E9E5E5"
             android:textSize="32sp" />
 
         <Button
@@ -53,6 +106,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="÷"
+            android:background="#FF9800"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -61,6 +116,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="7"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -69,6 +126,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="8"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -77,6 +136,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="9"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -85,6 +146,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="x"
+            android:background="#FF9800"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -93,6 +156,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="4"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -101,6 +166,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="5"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -109,6 +176,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="6"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -117,6 +186,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="-"
+            android:background="#FF9800"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -125,6 +196,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="1"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -133,6 +206,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="2"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -141,6 +216,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="3"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -149,6 +226,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="+"
+            android:background="#FF9800"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -158,6 +237,8 @@
             android:layout_margin="5dp"
             android:layout_columnSpan="2"
             android:text="0"
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -166,6 +247,8 @@
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
             android:text="."
+            android:background="#555555"
+            android:textColor="#ffffff"
             android:textSize="32sp" />
 
         <Button
@@ -173,6 +256,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
+            android:background="#FF9800"
+            android:textColor="#ffffff"
             android:text="="
             android:textSize="32sp" />
 
