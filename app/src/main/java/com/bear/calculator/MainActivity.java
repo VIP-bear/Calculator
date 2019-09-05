@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ope = "";
                 inputNum_1 = "";
                 inputNum_2 = "";
+                formula_text.setText("");
                 break;
             case R.id.neg:
                 text.setText(negate());
@@ -94,11 +95,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.sub:
             case R.id.mul:
             case R.id.div:
-                ope = ((Button) v).getText().toString();
-                inputNum_1 = text.getText().toString();
+                if (!inputNum_1.equals("")){    // 使计算器能够连续计算
+                    inputNum_2 = text.getText().toString();
+                }
+                if (!inputNum_2.equals("")){
+                    withResult();
+                    ope = ((Button) v).getText().toString();
+                }else{
+                    ope = ((Button) v).getText().toString();
+                    inputNum_1 = text.getText().toString();
+                }
                 text.setText("0");
                 break;
             case R.id.result:
+                inputNum_2 = text.getText().toString();
                 withResult();
                 break;
             case R.id.root:
@@ -127,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 计算结果
     private void withResult(){
         if (!ope.equals("")) {  // 进行了运算
-            inputNum_2 = text.getText().toString();
             double re = 0;  // 结果
             if (inputNum_2.equals("")) {    // 缺失第二个输入，则第二个输入和第一个输入一样
                 inputNum_2 = inputNum_1;
@@ -165,7 +174,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 格式化数字
     private String formatNum(String str){
         if (str.contains(".")){
-            int p = str.indexOf(".");
+            int p = str.indexOf(".");   // 记录小数点的位置
+            int maxLength = inputNum_1.substring(inputNum_1.indexOf(".")+1).length();   // 记录两个数中小数点后位数多的数的长度
+            if (maxLength < inputNum_2.substring(inputNum_2.indexOf(".")+1).length()){
+                maxLength = inputNum_2.substring(inputNum_2.indexOf(".")+1).length();
+            }
+            if (str.substring(p+1).length() > maxLength){
+                if (ope.equals("+") || ope.equals("-")){
+                    if (str.charAt(p+maxLength+1) == '0'){
+                        str = str.substring(0, p+maxLength+1);
+                    }else if(str.charAt(p+maxLength+1) == '9'){
+                        str = str.substring(0, p+maxLength) + ((int)(str.charAt(p+maxLength)) - (int)('0') + 1);
+                    }
+                    return str;
+                }
+            }
             int flag = 0;
             int i = 0;
             for (i = p+1; i < str.length(); i++){
@@ -174,7 +197,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 }
             }
-            if (flag == 0 || (i - p > 12)){
+
+            if (flag == 0 || (i - p >= 12)){
                 str = str.substring(0, p);
             }
         }
@@ -183,14 +207,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // 显示数字在界面上
     private void showNum(Button button){
+
+        if (!formula_text.getText().toString().equals("") && ope.equals("")){
+            String button_text = button.getText().toString();
+            if (button_text.equals(".")){
+                button_text = "0.";
+            }
+            text.setText(button_text);
+            formula_text.setText("");
+            inputNum_1 = "";
+            return;
+        }
+
         String s = text.getText().toString();
         String button_text = button.getText().toString();
         if (!(s.contains(".") && button_text.equals("."))) {     // 如果不包含小数点或者输入的不是小数点
             if (s.charAt(0) == '0') { // 去除0
-                if (button_text.equals(".")) {
+                if((s.length() >= 2) && (s.charAt(1) == '.')){  // 排除0.的情况
                     text.setText(s + button_text);
-                }else{
-                    if (!button_text.equals("0")) {
+                }else {
+                    if (button_text.equals(".")) {
+                        text.setText(s + button_text);
+                    } else if (!button_text.equals("0")) {
                         text.setText(button_text);
                     }
                 }
