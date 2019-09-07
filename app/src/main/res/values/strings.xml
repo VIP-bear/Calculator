@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Calculator</string>
+    <drawable name="color_yellow">#FF9800</drawable>
+    <drawable name="color_red">#F44336</drawable>
+    <drawable name="color_gray">#555555</drawable>
+    <drawable name="color_black">#2C2C2C</drawable>
+    <drawable name="color_light_white">#C7C7C7</drawable>
+    <drawable name="color_white">#ffffff</drawable>
+
 </resources>

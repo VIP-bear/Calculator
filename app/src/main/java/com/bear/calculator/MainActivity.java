@@ -9,6 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import static com.bear.calculator.util.Calculate.*;
+import static com.bear.calculator.util.judgeWithCompare.*;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private EditText text;          // 文本框
@@ -23,11 +29,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button cos;            // cos
     private Button back;            // 回退
 
+    private Button left_parenthesis;    // 左括号
+    private Button right_parenthesis;   // 右括号
+
     private Button add;             // 加
     private Button sub;             // 减
     private Button mul;             // 乘
     private Button div;             // 除
-    private Button result;          // 等于
+    private Button equal;          // 等于
     private Button point;           // 小数点
 
     private Button num_0;           // 0
@@ -41,9 +50,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button num_8;           // 8
     private Button num_9;           // 9
 
-    private String ope = "";        // 运算符
-    private String inputNum_1 = "";      // 第一个数
-    private String inputNum_2 = "";      // 第二个数
+    private String inputStr = "";                                   // 存储输入的字符
+    private LinkedList<String> operators = new LinkedList<>();      // 存储操作符
+    private StringBuffer sb = new StringBuffer();                   // 存储后缀表达式
+
+    private String result = "";
 
     private static final String TAG = "MainActivity";
 
@@ -57,8 +68,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getSupportActionBar().hide();
         }
 
-        initLayout();       // 初始化变量
-        setClickEvent();    // 设置监听器
+        int orientation = getResources().getConfiguration().orientation;
+
+        initLayout(orientation);       // 初始化变量
+        setClickEvent(orientation);    // 设置监听器
 
     }
 
@@ -66,18 +79,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.clear:
-                text.setText("0");
-                ope = "";
-                inputNum_1 = "";
-                inputNum_2 = "";
-                formula_text.setText("");
+                inputStr = "";
+                text.setText("");
                 break;
             case R.id.neg:
-                text.setText(negate());
+                double t = 0;
+                if (inputStr.contains("=")) {
+                    if (!result.equals("")) {
+                        t = Double.parseDouble(result);
+                        t *= (-1);
+                        inputStr = String.valueOf(t);
+                        text.setText(inputStr);
+                    }
+                }else {
+                    try {
+                        t = Double.parseDouble(inputStr);
+                        t *= (-1);
+                        inputStr = String.valueOf(t);
+                        text.setText(inputStr);
+                    }catch (NumberFormatException e){
+                        e.printStackTrace();
+                    }
+                }
                 break;
             case R.id.per:
-                text.setText(div_100());
+                inputStr = judgePercent(inputStr);
+                text.setText(inputStr);
                 break;
+            case R.id.left_parenthesis:
+            case R.id.right_parenthesis:
+                 inputStr = judgeParenthesis(((Button)v).getText().toString(), inputStr);
+                 Log.d(TAG, "onClick: "+inputStr);
+                 text.setText(inputStr);
+                 break;
             case R.id.num_0:
             case R.id.num_1:
             case R.id.num_2:
@@ -89,42 +123,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.num_8:
             case R.id.num_9:
             case R.id.point:
-                showNum((Button)v);
-                break;
             case R.id.add:
             case R.id.sub:
             case R.id.mul:
             case R.id.div:
-                if (!inputNum_1.equals("")){    // 使计算器能够连续计算
-                    inputNum_2 = text.getText().toString();
-                }
-                if (!inputNum_2.equals("")){
-                    withResult();
-                    ope = ((Button) v).getText().toString();
-                }else{
-                    ope = ((Button) v).getText().toString();
-                    inputNum_1 = text.getText().toString();
-                }
-                text.setText("0");
+                showInputStr((Button)v);
+                text.setText(inputStr);
                 break;
-            case R.id.result:
-                inputNum_2 = text.getText().toString();
-                withResult();
+            case R.id.equal:
+                result = "";
+                if (!inputStr.endsWith(" ")) {
+                    if (transferToPostfix(inputStr)) {
+                        inputStr = inputStr + " = " + calculate();
+                        text.setText(inputStr);
+                    }
+                }
                 break;
             case R.id.root:
-                String r = String.valueOf(Math.sqrt(Double.parseDouble(text.getText().toString())));
-                inputNum_1 = formatNum(r);
-                text.setText(inputNum_1);
                 break;
             case R.id.sin:
-                String s = String.valueOf(Math.sin(Double.parseDouble(text.getText().toString())));
-                inputNum_1 = formatNum(s);
-                text.setText(inputNum_1);
                 break;
             case R.id.cos:
-                String c = String.valueOf(Math.cos(Double.parseDouble(text.getText().toString())));
-                inputNum_1 = formatNum(c);
-                text.setText(inputNum_1);
                 break;
             case R.id.back:
                 backSpace();
@@ -134,173 +153,226 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // 计算结果
-    private void withResult(){
-        if (!ope.equals("")) {  // 进行了运算
-            double re = 0;  // 结果
-            if (inputNum_2.equals("")) {    // 缺失第二个输入，则第二个输入和第一个输入一样
-                inputNum_2 = inputNum_1;
-            }
-            double input1 = Double.parseDouble(inputNum_1);
-            double input2 = Double.parseDouble(inputNum_2);
-            if (ope.equals("+")){   // 加法
-                re = input1 + input2;
-            }else if (ope.equals("-")){ // 减法
-                re = input1 - input2;
-            }else if (ope.equals("x")) { // 乘法
-                re = input1 * input2;
-            }else {
-                if (input2 != 0.0){
-                    re = input1 / input2;
-                }
-            }
+    // 显示输入在界面上
+    private void showInputStr(Button button){
+        String s = button.getText().toString();
+        boolean flag = (s.equals("+") || s.equals("-") || s.equals("x")
+                || s.equals("÷"));
 
-            // 格式化结果
-            String newRe = formatNum(String.valueOf(re));
-
-            // 显示算式
-            String output = inputNum_1 + " " + ope + " "
-                    + inputNum_2 + "\n=" + newRe;
-            formula_text.setText(output);
-
-            inputNum_1 = String.valueOf(newRe);    // 将结果赋值给   第一个数
-            ope = "";
-            inputNum_2 = "";
-            text.setText(inputNum_1);   // 显示结果
-        }
-
-    }
-
-    // 格式化数字
-    private String formatNum(String str){
-        if (str.contains(".")){
-            int p = str.indexOf(".");   // 记录小数点的位置
-            int maxLength = inputNum_1.substring(inputNum_1.indexOf(".")+1).length();   // 记录两个数中小数点后位数多的数的长度
-            if (maxLength < inputNum_2.substring(inputNum_2.indexOf(".")+1).length()){
-                maxLength = inputNum_2.substring(inputNum_2.indexOf(".")+1).length();
-            }
-            if (str.substring(p+1).length() > maxLength){
-                if (ope.equals("+") || ope.equals("-")){
-                    if (str.charAt(p+maxLength+1) == '0'){
-                        str = str.substring(0, p+maxLength+1);
-                    }else if(str.charAt(p+maxLength+1) == '9'){
-                        str = str.substring(0, p+maxLength) + ((int)(str.charAt(p+maxLength)) - (int)('0') + 1);
-                    }
-                    return str;
-                }
-            }
-            int flag = 0;
-            int i = 0;
-            for (i = p+1; i < str.length(); i++){
-                if (str.charAt(i) != '0'){
-                    flag = 1;
-                    break;
-                }
-            }
-
-            if (flag == 0 || (i - p >= 12)){
-                str = str.substring(0, p);
+        if (text.getText().toString().contains("=")){
+            if (flag){  // 继续使用结果
+                inputStr = result;
+                text.setText(result);
+            }else {     // 清除屏幕
+                inputStr = "";
+                text.setText("");
             }
         }
-        return str;
-    }
 
-    // 显示数字在界面上
-    private void showNum(Button button){
 
-        if (!formula_text.getText().toString().equals("") && ope.equals("")){
-            String button_text = button.getText().toString();
-            if (button_text.equals(".")){
-                button_text = "0.";
+        if (s.equals("-")){     // 能够输入负数
+            if (inputStr.equals("") || (inputStr.length() >= 2 && inputStr.charAt(inputStr.length()-2) == '(')){    // 在没有任何输入或者有左括号(的情况下可以输入-
+                inputStr += s;
+                return;
             }
-            text.setText(button_text);
-            formula_text.setText("");
-            inputNum_1 = "";
+        }
+
+        if (inputStr.equals("") && (flag || s.equals("."))){        // 排除在没有输入的情况下输入不合法的字符
             return;
-        }
-
-        String s = text.getText().toString();
-        String button_text = button.getText().toString();
-        if (!(s.contains(".") && button_text.equals("."))) {     // 如果不包含小数点或者输入的不是小数点
-            if (s.charAt(0) == '0') { // 去除0
-                if((s.length() >= 2) && (s.charAt(1) == '.')){  // 排除0.的情况
-                    text.setText(s + button_text);
-                }else {
-                    if (button_text.equals(".")) {
-                        text.setText(s + button_text);
-                    } else if (!button_text.equals("0")) {
-                        text.setText(button_text);
+        }else {
+            if (flag){  // 输入的是+-*/
+                char ch = ' ';
+                if (inputStr.length() < 2) {
+                    if (inputStr.equals("-")){
+                        return;
                     }
+                    inputStr = inputStr + " " + s + " ";
+                    return;
                 }
-            } else {
-                text.setText(s + button_text);
+                ch = inputStr.charAt(inputStr.length() - 2);
+                boolean judge = ((ch == '+') || (ch == '-') || (ch == 'x') || (ch == '÷')
+                                    || (inputStr.charAt(inputStr.length()-1) == '-'));
+                if (judge && (inputStr.charAt(inputStr.length()-1) == ' ')){     // 排除输入++等情况
+                    return;
+                }else {
+                    inputStr = inputStr + " " + s + " ";      // 在每个操作符前后添加一个空格用于切分字符串
+                }
+            }else if (s.equals(".")){       // 输入的是小数点
+                if (inputStr.charAt(inputStr.length()-1) == ' '){   // 排除+.等情况
+                    return;
+                }
+                if (inputStr.contains(".")){    // 如果之前输入包含小数点
+                    int p = inputStr.lastIndexOf(".");
+                    String subInput = inputStr.substring(p+1);
+                    if (subInput.contains("+") || subInput.contains("-") || subInput.contains("x")
+                        || subInput.contains("÷")){     // 获取最后一个小数点后的字符串，如果包含运算符则输入有效
+                        inputStr += s;
+                    }else {
+                        return;
+                    }
+                }else {
+                    inputStr += s;
+                }
+            }else {     // 输入的是数字
+                if (!inputStr.isEmpty()) {      // 之前的输入不为空
+                    String[] arrayNum = inputStr.split(" ");
+                    String lastNums = arrayNum[arrayNum.length-1];
+                    if (lastNums != null) {
+                        if (lastNums.contains(".")) {   // 如果包含小数点
+                            inputStr += s;
+                        } else{
+                            if (lastNums.charAt(0) == '0'){
+                                if (s.equals("0")){     //排除00的情况
+                                    return;
+                                }else{
+                                    inputStr = inputStr.substring(0, inputStr.length()-2) + s;
+                                }
+                            }else{
+                                inputStr += s;
+                            }
+                        }
+                    }else {
+                        inputStr += s;
+                    }
+                }else {
+                    inputStr += s;
+                }
             }
         }
-        Log.d(TAG, "showNum: "+text.getText().toString());
 
     }
 
     // 回退一个字符
     private void backSpace(){
-        String str = text.getText().toString();
-        text.setText(str.substring(0, str.length()-1));
-        if (text.getText().toString().equals("")){
-            text.setText("0");
+        if (!inputStr.contains("=")) {
+
+            if (inputStr.equals("")) {     // 全部清除了
+                return;
+            }
+
+            int backLen = 1;
+            if (inputStr.endsWith(" ")){
+                backLen = 2;
+            }
+            inputStr = inputStr.substring(0, inputStr.length() - backLen);
+            text.setText(inputStr);
         }
     }
 
-    // 取%（除以100）
-    private String div_100(){
-        String s = text.getText().toString();
+    // 中缀表达式转为后缀表达式
+    private boolean transferToPostfix(String str){
 
-        if (s.contains(".")){   // 字符串包含小数点
-            inputNum_1 = String.valueOf(Double.parseDouble(s)/100);
-            return inputNum_1;
-        }else {
-            int num = Integer.parseInt(s);
-            if (num % 100 == 0){    // 能整除100
-                inputNum_1 = String.valueOf(num / 100);
-                return inputNum_1;
-            }else {
-                inputNum_1 = String.valueOf(num / 100.0);
-                return inputNum_1;
+        if (judgeFormula(str) != 0){
+            return false;
+        }
+        String[] list = str.split(" ");
+        int p = 0;
+        while (p < list.length) {
+            String s = list[p];
+            p++;
+            if (isOperator(s)) {    // 如果s是操作符
+                if (operators.isEmpty()) {  // 操作符栈为空
+                    operators.push(s);
+                }else{
+                    // 如果读入的操作符不是")"且优先级比栈顶元素的优先级高，则将操作符压入栈
+                    if (!s.equals(")") && priority(operators.peek()) < priority(s)) {
+                        operators.push(s);
+                    }else if(!s.equals(")") && priority(operators.peek()) >= priority(s)){
+                        while (operators.size()!=0 && priority(operators.peek()) >= priority(s)
+                                && !operators.peek().equals("(")) {
+                            if (!operators.peek().equals("(")) {
+                                String operator=operators.pop();
+                                sb.append(operator).append(" ");
+                            }
+                        }
+                        operators.push(s);
+                    } else if (s.equals(")")) {
+                        // 如果读入的操作符是")"，则弹出从栈顶开始第一个"("及其之前的所有操作符
+                        while (!operators.peek().equals("(")) {
+                            String operator=operators.pop();
+                            sb.append(operator).append(" ");
+                        }
+                        // 弹出"("
+                        operators.pop();
+                    }
+                }
+            }else {  // 读入的为非操作符
+                sb.append(s).append(" ");
+            }
+
+        }
+        if (!operators.isEmpty()) {     // 可能最后还会有一个操作符在栈中
+            Iterator<String> iterator=operators.iterator();
+            while (iterator.hasNext()) {
+                String operator=iterator.next();
+                sb.append(operator).append(" ");
             }
         }
+        Log.d(TAG, "transferToPostfix: " + sb);
+        return true;
     }
 
-    // 取反
-    private String negate(){
-        String s = text.getText().toString();
-        String newStr = "";
-
-        if (s.charAt(0) == '-'){
-            newStr = s.substring(1);
-        }else {
-            newStr = "-" + s;
+    // 计算后缀表达式
+    private String calculate(){
+        LinkedList<String> numList = new LinkedList<>();    // 储存计算的结果
+        String[] opWithNumStr = sb.toString().split(" ");
+        for (String s : opWithNumStr){
+            if (isOperator(s)){ // 遇到操作符则计算
+                if (!numList.isEmpty()){
+                    double num1 = 0;
+                    double num2 = 0;
+                    double newNum = 0;
+                    if (s.equals("%")){ // 弹出一个字符串
+                        num1 = Double.parseDouble(numList.pop());
+                        newNum = oneDigitOperation(num1, s);
+                    }else { // 弹出两个字符串
+                        num1 = Double.parseDouble(numList.pop());
+                        num2 = Double.parseDouble(numList.pop());
+                        if (s.equals("÷") && num1 == 0) {
+                            return "ERROR";
+                        }
+                        newNum = twoDigitOperation(num2, num1, s);
+                    }
+                    numList.push(String.valueOf(newNum));   // 将获得的结果压入栈
+                }
+            }else {     // 遇到数字则直接入栈
+                numList.push(s);
+            }
         }
-        return newStr;
+        sb = new StringBuffer();
+        operators.clear();
+        if (!numList.isEmpty()){
+            result = numList.pop();
+        }else {
+            result = "ERROR";
+        }
+        return result;
     }
 
     // 初始化变量
-    private void initLayout(){
+    private void initLayout(int land){
+
+        if (land == 2){     // 横屏
+            neg = findViewById(R.id.neg);
+            root = findViewById(R.id.root);
+            sin = findViewById(R.id.sin);
+            cos = findViewById(R.id.cos);
+            left_parenthesis = findViewById(R.id.left_parenthesis);
+            right_parenthesis = findViewById(R.id.right_parenthesis);
+        }
 
         text = findViewById(R.id.text_view);
         formula_text = findViewById(R.id.formula_text);
 
         clear = findViewById(R.id.clear);
-        neg = findViewById(R.id.neg);
         per = findViewById(R.id.per);
-
-        root = findViewById(R.id.root);
-        sin = findViewById(R.id.sin);
-        cos = findViewById(R.id.cos);
         back = findViewById(R.id.back);
 
         add = findViewById(R.id.add);
         sub = findViewById(R.id.sub);
         mul = findViewById(R.id.mul);
         div = findViewById(R.id.div);
-        result = findViewById(R.id.result);
+        equal = findViewById(R.id.equal);
 
         point = findViewById(R.id.point);
         num_0 = findViewById(R.id.num_0);
@@ -317,22 +389,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // 设置监听器
-    private void setClickEvent(){
+    private void setClickEvent(int land){
+
+        if (land == 2){     // 横屏
+            neg.setOnClickListener(this);
+            root.setOnClickListener(this);
+            sin.setOnClickListener(this);
+            cos.setOnClickListener(this);
+            left_parenthesis.setOnClickListener(this);
+            right_parenthesis.setOnClickListener(this);
+        }
 
         clear.setOnClickListener(this);
-        neg.setOnClickListener(this);
         per.setOnClickListener(this);
-
-        root.setOnClickListener(this);
-        sin.setOnClickListener(this);
-        cos.setOnClickListener(this);
         back.setOnClickListener(this);
 
         add.setOnClickListener(this);
         sub.setOnClickListener(this);
         mul.setOnClickListener(this);
         div.setOnClickListener(this);
-        result.setOnClickListener(this);
+        equal.setOnClickListener(this);
 
         point.setOnClickListener(this);
         num_0.setOnClickListener(this);
