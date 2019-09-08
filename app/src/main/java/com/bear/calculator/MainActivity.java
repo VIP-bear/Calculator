@@ -24,9 +24,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button neg;             // 取相反数
     private Button per;             // 取百分数
 
-    private Button root;            // 开根号
-    private Button sin;            // sin
-    private Button cos;            // cos
+    private Button square_root;     // 平方根
+    private Button cube_root;       // 立方根
+    private Button sin;             // sin
+    private Button cos;             // cos
+    private Button tan;             // tan
+    private Button ln;              // ln
+    private Button log;             // log
     private Button back;            // 回退
 
     private Button left_parenthesis;    // 左括号
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getSupportActionBar().hide();
         }
 
-        int orientation = getResources().getConfiguration().orientation;
+        int orientation = getResources().getConfiguration().orientation;    // 获取横竖屏值
 
         initLayout(orientation);       // 初始化变量
         setClickEvent(orientation);    // 设置监听器
@@ -83,24 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 text.setText("");
                 break;
             case R.id.neg:
-                double t = 0;
-                if (inputStr.contains("=")) {
-                    if (!result.equals("")) {
-                        t = Double.parseDouble(result);
-                        t *= (-1);
-                        inputStr = String.valueOf(t);
-                        text.setText(inputStr);
-                    }
-                }else {
-                    try {
-                        t = Double.parseDouble(inputStr);
-                        t *= (-1);
-                        inputStr = String.valueOf(t);
-                        text.setText(inputStr);
-                    }catch (NumberFormatException e){
-                        e.printStackTrace();
-                    }
-                }
+                negate();
                 break;
             case R.id.per:
                 inputStr = judgePercent(inputStr);
@@ -109,9 +96,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.left_parenthesis:
             case R.id.right_parenthesis:
                  inputStr = judgeParenthesis(((Button)v).getText().toString(), inputStr);
-                 Log.d(TAG, "onClick: "+inputStr);
                  text.setText(inputStr);
                  break;
+            case R.id.square_root:
+            case R.id.cube_root:
+                inputStr = judgeRoot(((Button)v).getText().toString(), inputStr);
+                text.setText(inputStr);
+                break;
+            case R.id.sin:
+            case R.id.cos:
+            case R.id.tan:
+                inputStr = trigFunction(((Button)v).getText().toString(), inputStr);
+                text.setText(inputStr);
+                break;
+            case R.id.back:
+                backSpace();
+                break;
+            case R.id.ln:
+            case R.id.log:
+                inputStr = judgeLnOrLog(((Button)v).getText().toString(), inputStr);
+                text.setText(inputStr);
+                break;
             case R.id.num_0:
             case R.id.num_1:
             case R.id.num_2:
@@ -139,17 +144,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
                 break;
-            case R.id.root:
-                break;
-            case R.id.sin:
-                break;
-            case R.id.cos:
-                break;
-            case R.id.back:
-                backSpace();
-                break;
             default:
                 break;
+        }
+    }
+
+    // 取反
+    private void negate(){
+        double t = 0;
+        if (inputStr.contains("=")) {
+            if (!result.equals("")) {
+                t = Double.parseDouble(result);
+                t *= (-1);
+                inputStr = String.valueOf(t);
+                text.setText(inputStr);
+            }
+        }else {
+            try {
+                t = Double.parseDouble(inputStr);
+                t *= (-1);
+                inputStr = String.valueOf(t);
+                text.setText(inputStr);
+            }catch (NumberFormatException e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -171,7 +189,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         if (s.equals("-")){     // 能够输入负数
-            if (inputStr.equals("") || (inputStr.length() >= 2 && inputStr.charAt(inputStr.length()-2) == '(')){    // 在没有任何输入或者有左括号(的情况下可以输入-
+            if (inputStr.equals("") || (inputStr.length() >= 2 &&
+                    inputStr.charAt(inputStr.length()-2) == '(')){    // 在没有任何输入或者有左括号(的情况下可以输入-
                 inputStr += s;
                 return;
             }
@@ -322,10 +341,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     double num1 = 0;
                     double num2 = 0;
                     double newNum = 0;
-                    if (s.equals("%")){ // 弹出一个字符串
+                    if (s.equals("%") || s.equals("sin") || s.equals("cos")
+                            || s.equals("tan") || s.equals("√")
+                            || s.equals("³√") || s.equals("ln")
+                            || s.equals("log")){ // 弹出一个字符串
                         num1 = Double.parseDouble(numList.pop());
                         newNum = oneDigitOperation(num1, s);
-                    }else { // 弹出两个字符串
+                        newNum = Double.parseDouble(String.format("%.12f", newNum));
+                    } else { // 弹出两个字符串
                         num1 = Double.parseDouble(numList.pop());
                         num2 = Double.parseDouble(numList.pop());
                         if (s.equals("÷") && num1 == 0) {
@@ -354,9 +377,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (land == 2){     // 横屏
             neg = findViewById(R.id.neg);
-            root = findViewById(R.id.root);
+            square_root = findViewById(R.id.square_root);
+            cube_root = findViewById(R.id.cube_root);
             sin = findViewById(R.id.sin);
             cos = findViewById(R.id.cos);
+            tan = findViewById(R.id.tan);
+            ln = findViewById(R.id.ln);
+            log = findViewById(R.id.log);
             left_parenthesis = findViewById(R.id.left_parenthesis);
             right_parenthesis = findViewById(R.id.right_parenthesis);
         }
@@ -393,9 +420,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (land == 2){     // 横屏
             neg.setOnClickListener(this);
-            root.setOnClickListener(this);
+            square_root.setOnClickListener(this);
+            cube_root.setOnClickListener(this);
             sin.setOnClickListener(this);
             cos.setOnClickListener(this);
+            tan.setOnClickListener(this);
+            ln.setOnClickListener(this);
+            log.setOnClickListener(this);
             left_parenthesis.setOnClickListener(this);
             right_parenthesis.setOnClickListener(this);
         }

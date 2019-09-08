@@ -27,6 +27,20 @@ public class Calculate {
         switch (op){
             case "%":
                 return num1 / 100.0;
+            case "sin":
+                return Math.sin(num1/180.0*Math.PI);
+            case "cos":
+                return Math.cos(num1);
+            case "tan":
+                return Math.tan(num1);
+            case "√":
+                return Math.sqrt(num1);
+            case "³√":
+                return Math.pow(num1, 1.0/3);
+            case "ln":
+                return Math.log(num1);
+            case "log":
+                return Math.log10(num1);
             default:
                 return 0;
         }

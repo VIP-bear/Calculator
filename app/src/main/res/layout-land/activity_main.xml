@@ -49,13 +49,15 @@
             android:text=")"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
+
         <Button
-            android:layout_width="wrap_content"
+            android:id="@+id/per"
             android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="%"
             android:background="@drawable/lightwhite_white_selector"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <Button
             android:id="@+id/clear"
@@ -157,17 +159,21 @@
             android:textSize="24sp" />
 
         <Button
+            android:id="@+id/ln"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="ln"
+            android:textAllCaps="false"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
         <Button
+            android:id="@+id/log"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="log"
+            android:textAllCaps="false"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
         <Button
@@ -218,15 +224,8 @@
             android:background="@drawable/yellow_red_selector"
             android:textColor="#ffffff"
             android:textSize="24sp" />
-
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="1dp"
-            android:text="null"
-            android:background="@drawable/lightwhite_white_selector"
-            android:textSize="24sp"/>
-        <Button
+            android:id="@+id/n_root"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
@@ -235,7 +234,16 @@
             android:textSize="24sp"/>
 
         <Button
-            android:id="@+id/root"
+            android:id="@+id/cube_root"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:text="³√"
+            android:background="@drawable/lightwhite_white_selector"
+            android:textSize="24sp"/>
+
+        <Button
+            android:id="@+id/square_root"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_margin="1dp"
@@ -304,13 +312,15 @@
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/per"
-            android:layout_height="wrap_content"
+            android:id="@+id/tan"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="%"
+            android:text="tan"
+            android:textAllCaps="false"
             android:background="@drawable/lightwhite_white_selector"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
+
 
         <Button
             android:id="@+id/num_0"

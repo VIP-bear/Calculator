@@ -4,8 +4,6 @@ package com.bear.calculator.util;
 定义了用于判断和比较的一些方法
  */
 
-import android.widget.Button;
-
 public class judgeWithCompare {
 
     // 操作符优先级比较
@@ -19,9 +17,19 @@ public class judgeWithCompare {
                 return 2;
             case "%":
                 return 3;
+            case "sin":
+            case "cos":
+            case "tan":
+                return 4;
+            case "√":
+            case "³√":
+                return 5;
+            case "ln":
+            case "log":
+                return 6;
             case "(":
             case ")":
-                return 4;
+                return 10;
             default:
                 return 0;
         }
@@ -30,7 +38,9 @@ public class judgeWithCompare {
     // 判断字符串是否是操作符
     public static boolean isOperator(String op){
         if (op.equals("+") || op.equals("-") || op.equals("x") || op.equals("÷")
-                || op.equals("%") || op.equals("(") || op.equals(")")){
+                || op.equals("%") || op.equals("(") || op.equals(")") || op.equals("sin")
+                || op.equals("cos") || op.equals("tan") || op.equals("√")
+                || op.equals("³√") || op.equals("ln") || op.equals("log")){
             return true;
         }
         return false;
@@ -89,5 +99,29 @@ public class judgeWithCompare {
         return inputStr;
     }
 
+    // 判断三角函数输入是否合法
+    public static String trigFunction(String op, String inputStr){
+
+        if (!inputStr.endsWith(" ") && !inputStr.equals("") && !inputStr.contains("=")){
+            return inputStr;
+        }
+        return inputStr + op + " " + "(" + " ";
+    }
+
+    // 判断根号输入是否合法
+    public static String judgeRoot(String op, String inputStr){
+        if (!inputStr.endsWith(" ") && !inputStr.equals("") && !inputStr.contains("=")){
+            return inputStr;
+        }
+        return inputStr + op + " " + "(" + " ";
+    }
+
+    // 判断输入的ln和log是否合法
+    public static String judgeLnOrLog(String op, String inputStr){
+        if (!inputStr.endsWith(" ") && !inputStr.equals("") && !inputStr.contains("=")){
+            return inputStr;
+        }
+        return inputStr + op + " " + "(" + " ";
+    }
 
 }
