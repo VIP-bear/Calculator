@@ -26,12 +26,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button square_root;     // 平方根
     private Button cube_root;       // 立方根
+    private Button n_root;          // n次方根
+    private Button squaare;         // 平方
+    private Button n_square;        // n次方
     private Button sin;             // sin
     private Button cos;             // cos
     private Button tan;             // tan
     private Button ln;              // ln
     private Button log;             // log
     private Button back;            // 回退
+
+    private Button pi;              // Π
+    private Button e;               // e
 
     private Button left_parenthesis;    // 左括号
     private Button right_parenthesis;   // 右括号
@@ -100,21 +106,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                  break;
             case R.id.square_root:
             case R.id.cube_root:
-                inputStr = judgeRoot(((Button)v).getText().toString(), inputStr);
-                text.setText(inputStr);
-                break;
             case R.id.sin:
             case R.id.cos:
             case R.id.tan:
-                inputStr = trigFunction(((Button)v).getText().toString(), inputStr);
+            case R.id.ln:
+            case R.id.log:
+                inputStr = judgeRootTrigLog(((Button)v).getText().toString(), inputStr);
+                text.setText(inputStr);
+                break;
+            case R.id.square:
+            case R.id.n_square:
+            case R.id.n_root:
+                inputStr = judgeSquare(((Button)v).getText().toString(), inputStr);
                 text.setText(inputStr);
                 break;
             case R.id.back:
                 backSpace();
                 break;
-            case R.id.ln:
-            case R.id.log:
-                inputStr = judgeLnOrLog(((Button)v).getText().toString(), inputStr);
+            case R.id.pi:
+            case R.id.e:
+                inputStr = judgePIOrE(((Button)v).getText().toString(), inputStr);
                 text.setText(inputStr);
                 break;
             case R.id.num_0:
@@ -137,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.equal:
                 result = "";
-                if (!inputStr.endsWith(" ")) {
+                if (!inputStr.endsWith(" ") && !inputStr.contains("=") && !inputStr.equals("")) {
                     if (transferToPostfix(inputStr)) {
                         inputStr = inputStr + " = " + calculate();
                         text.setText(inputStr);
@@ -237,6 +248,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String[] arrayNum = inputStr.split(" ");
                     String lastNums = arrayNum[arrayNum.length-1];
                     if (lastNums != null) {
+                        if (lastNums.equals("Π") || lastNums.equals("e")){
+                            return;
+                        }
                         if (lastNums.contains(".")) {   // 如果包含小数点
                             inputStr += s;
                         } else{
@@ -341,25 +355,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     double num1 = 0;
                     double num2 = 0;
                     double newNum = 0;
-                    if (s.equals("%") || s.equals("sin") || s.equals("cos")
-                            || s.equals("tan") || s.equals("√")
-                            || s.equals("³√") || s.equals("ln")
-                            || s.equals("log")){ // 弹出一个字符串
-                        num1 = Double.parseDouble(numList.pop());
-                        newNum = oneDigitOperation(num1, s);
-                        newNum = Double.parseDouble(String.format("%.12f", newNum));
-                    } else { // 弹出两个字符串
-                        num1 = Double.parseDouble(numList.pop());
-                        num2 = Double.parseDouble(numList.pop());
-                        if (s.equals("÷") && num1 == 0) {
-                            return "ERROR";
+                    try {
+                        if (s.equals("%") || s.equals("sin") || s.equals("cos")
+                                || s.equals("tan") || s.equals("√")
+                                || s.equals("³√") || s.equals("ln")
+                                || s.equals("log")) { // 弹出一个字符串
+                            num1 = Double.parseDouble(numList.pop());
+                            newNum = oneDigitOperation(num1, s);
+                        } else { // 弹出两个字符串
+                            num1 = Double.parseDouble(numList.pop());
+                            num2 = Double.parseDouble(numList.pop());
+                            if (s.equals("÷") && num1 == 0) {
+                                return "ERROR";
+                            }
+                            newNum = twoDigitOperation(num2, num1, s);
                         }
-                        newNum = twoDigitOperation(num2, num1, s);
+                        newNum = Double.parseDouble(String.format("%.12f", newNum));    // 最多保留12位小数
+                        numList.push(String.valueOf(newNum));   // 将获得的结果压入栈
+                    }catch (NumberFormatException e){
+                        return inputStr;
                     }
-                    numList.push(String.valueOf(newNum));   // 将获得的结果压入栈
                 }
             }else {     // 遇到数字则直接入栈
-                numList.push(s);
+                if (s.equals("Π")){
+                    numList.push(String.valueOf(Math.PI));
+                }else if (s.equals("e")){
+                    numList.push(String.valueOf(Math.E));
+                }else {
+                    numList.push(s);
+                }
             }
         }
         sb = new StringBuffer();
@@ -368,6 +392,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             result = numList.pop();
         }else {
             result = "ERROR";
+        }
+        if (result.endsWith(".0")){
+            result = result.substring(0, result.length()-2);
         }
         return result;
     }
@@ -379,6 +406,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             neg = findViewById(R.id.neg);
             square_root = findViewById(R.id.square_root);
             cube_root = findViewById(R.id.cube_root);
+            n_root = findViewById(R.id.n_root);
+            squaare = findViewById(R.id.square);
+            n_square = findViewById(R.id.n_square);
             sin = findViewById(R.id.sin);
             cos = findViewById(R.id.cos);
             tan = findViewById(R.id.tan);
@@ -386,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             log = findViewById(R.id.log);
             left_parenthesis = findViewById(R.id.left_parenthesis);
             right_parenthesis = findViewById(R.id.right_parenthesis);
+            pi = findViewById(R.id.pi);
+            e = findViewById(R.id.e);
         }
 
         text = findViewById(R.id.text_view);
@@ -422,6 +454,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             neg.setOnClickListener(this);
             square_root.setOnClickListener(this);
             cube_root.setOnClickListener(this);
+            n_root.setOnClickListener(this);
+            squaare.setOnClickListener(this);
+            n_square.setOnClickListener(this);
             sin.setOnClickListener(this);
             cos.setOnClickListener(this);
             tan.setOnClickListener(this);
@@ -429,6 +464,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             log.setOnClickListener(this);
             left_parenthesis.setOnClickListener(this);
             right_parenthesis.setOnClickListener(this);
+            pi.setOnClickListener(this);
+            e.setOnClickListener(this);
         }
 
         clear.setOnClickListener(this);

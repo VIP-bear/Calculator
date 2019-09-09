@@ -27,6 +27,8 @@ public class judgeWithCompare {
             case "ln":
             case "log":
                 return 6;
+            case "^":
+                return 7;
             case "(":
             case ")":
                 return 10;
@@ -40,7 +42,8 @@ public class judgeWithCompare {
         if (op.equals("+") || op.equals("-") || op.equals("x") || op.equals("÷")
                 || op.equals("%") || op.equals("(") || op.equals(")") || op.equals("sin")
                 || op.equals("cos") || op.equals("tan") || op.equals("√")
-                || op.equals("³√") || op.equals("ln") || op.equals("log")){
+                || op.equals("³√") || op.equals("ln") || op.equals("log")
+                || op.equals("^")){
             return true;
         }
         return false;
@@ -99,29 +102,57 @@ public class judgeWithCompare {
         return inputStr;
     }
 
-    // 判断三角函数输入是否合法
-    public static String trigFunction(String op, String inputStr){
+    // 判断输入的根号,三角函数,ln和log是否合法
+    public static String judgeRootTrigLog(String op, String inputStr){
+        if (inputStr.contains("=")){
+            return op + " " + "(" + " ";
+        }
 
-        if (!inputStr.endsWith(" ") && !inputStr.equals("") && !inputStr.contains("=")){
+        if (!inputStr.endsWith(" ") && !inputStr.equals("")){
             return inputStr;
         }
         return inputStr + op + " " + "(" + " ";
     }
 
-    // 判断根号输入是否合法
-    public static String judgeRoot(String op, String inputStr){
-        if (!inputStr.endsWith(" ") && !inputStr.equals("") && !inputStr.contains("=")){
+    // 判断输入的Π和e是否合法
+    public static String judgePIOrE(String op, String inputStr){
+
+        if (inputStr.contains("=")){
+            return op;
+        }
+
+        if (inputStr.equals("")){
+            return inputStr + op;
+        }
+        if (!inputStr.endsWith(" ")){
             return inputStr;
         }
-        return inputStr + op + " " + "(" + " ";
+        return inputStr + op;
     }
 
-    // 判断输入的ln和log是否合法
-    public static String judgeLnOrLog(String op, String inputStr){
-        if (!inputStr.endsWith(" ") && !inputStr.equals("") && !inputStr.contains("=")){
+    // 判断x的n次方是否合法
+    public static String judgeSquare(String op, String inputStr){
+        if (inputStr.contains("=")){
+            String[] array = inputStr.split(" ");
+            if (op.equals("x²")){
+                inputStr = array[array.length-1] + " " + "^" + " " + "2";
+            }else if (op.equals("x^y")){
+                inputStr = array[array.length-1] + " " + "^" + " " + "(" + " ";
+            }
             return inputStr;
         }
-        return inputStr + op + " " + "(" + " ";
+
+        if (!inputStr.equals("") && !inputStr.endsWith(" ") && !inputStr.equals("-")){
+            if (op.equals("x²")){
+                inputStr = inputStr + " " + "^" + " " + "2";
+            }else if (op.equals("y√x")){
+                inputStr = inputStr + " " + "^" + " " + "(" + " " + "1" + " " + "÷" + " ";
+            }else {
+                inputStr = inputStr + " " + "^" + " " + "(" + " ";
+            }
+            return inputStr;
+        }
+        return inputStr;
     }
 
 }

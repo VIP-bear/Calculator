@@ -17,6 +17,9 @@ public class Calculate {
                 return num1 * num2;
             case "÷":
                 return num1 / num2;
+            case "^":
+                double t = Math.pow(num1, num2);
+                return Double.parseDouble(String.format("%.10f", t));
             default:
                 return 0;
         }

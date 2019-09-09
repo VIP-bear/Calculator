@@ -97,24 +97,29 @@
             android:textSize="24sp" />
 
         <Button
+            android:id="@+id/pi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="Π"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
         <Button
+            android:id="@+id/e"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="e"
+            android:textAllCaps="false"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
         <Button
+            android:id="@+id/square"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="x²"
+            android:textAllCaps="false"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
 
@@ -177,10 +182,12 @@
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
         <Button
+            android:id="@+id/n_square"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="x^y"
+            android:textAllCaps="false"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
 
@@ -229,7 +236,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:text="null"
+            android:text="y√x"
+            android:textAllCaps="false"
             android:background="@drawable/lightwhite_white_selector"
             android:textSize="24sp"/>
 
