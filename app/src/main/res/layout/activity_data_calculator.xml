@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".DataCalculator">
+
+    <ImageButton
+        android:id="@+id/from_date_back"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/back"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="开始时间"
+            android:textSize="32sp"
+            android:background="#13F01D"/>
+
+        <TextView
+            android:id="@+id/start_data"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="#F5F2F2"
+            android:textSize="28sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="截至时间"
+            android:textSize="32sp"
+            android:background="#FC1C0B"/>
+
+        <TextView
+            android:id="@+id/end_data"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="#F5F2F2"
+            android:textSize="28sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="相差天数"
+            android:textSize="32sp"
+            android:background="#FFC107"/>
+
+        <TextView
+            android:id="@+id/sub_date"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="#F5F2F2"
+            android:textSize="28sp"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/cal_date"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:text="计算"
+        android:background="@drawable/yellow_red_selector"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:textSize="28sp"/>
+
+</LinearLayout>

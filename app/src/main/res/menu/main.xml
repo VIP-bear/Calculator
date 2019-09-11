@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/length"
+        android:orderInCategory="1"
+        android:title="长度换算"/>
+    <item
+        android:id="@+id/volume"
+        android:orderInCategory="2"
+        android:title="体积换算"/>
+    <item
+        android:id="@+id/decimal"
+        android:orderInCategory="3"
+        android:title="进制转换"/>
+    <item
+        android:id="@+id/rate"
+        android:orderInCategory="4"
+        android:title="实时汇率"/>
+    <item
+        android:id="@+id/date"
+        android:orderInCategory="5"
+        android:title="日期计算"/>
+    <item
+        android:id="@+id/hihstory"
+        android:orderInCategory="6"
+        android:title="计算历史"/>
+    <item
+        android:id="@+id/help"
+        android:orderInCategory="7"
+        android:title="帮助"/>
+</menu>

@@ -1,14 +1,27 @@
 package com.bear.calculator;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bear.calculator.model.History;
+
+import org.litepal.LitePal;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -18,7 +31,6 @@ import static com.bear.calculator.util.judgeWithCompare.*;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private EditText text;          // 文本框
-    private TextView formula_text;  // 算式
 
     private Button clear;           // 清零
     private Button neg;             // 取相反数
@@ -64,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LinkedList<String> operators = new LinkedList<>();      // 存储操作符
     private StringBuffer sb = new StringBuffer();                   // 存储后缀表达式
 
-    private String result = "";
+    private String result = "";     // 计算结果
 
     private static final String TAG = "MainActivity";
 
@@ -73,15 +85,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 隐藏标题栏
-        if (getSupportActionBar() != null){
-            getSupportActionBar().hide();
-        }
-
         int orientation = getResources().getConfiguration().orientation;    // 获取横竖屏值
+        if (orientation == 2){
+            // 横屏隐藏标题栏
+            if (getSupportActionBar() != null){
+                getSupportActionBar().hide();
+            }
+        }
 
         initLayout(orientation);       // 初始化变量
         setClickEvent(orientation);    // 设置监听器
+
+        // 读取保存的数据
+        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
+        inputStr = preferences.getString("editview_text", "");
+        if (!inputStr.equals("")){
+            text.setText(inputStr);
+        }
 
     }
 
@@ -152,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (transferToPostfix(inputStr)) {
                         inputStr = inputStr + " = " + calculate();
                         text.setText(inputStr);
+                        saveHistory(inputStr);
                     }
                 }
                 break;
@@ -244,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     inputStr += s;
                 }
             }else {     // 输入的是数字
-                if (!inputStr.isEmpty()) {      // 之前的输入不为空
+                if (!inputStr.equals("")) {      // 之前的输入不为空
                     String[] arrayNum = inputStr.split(" ");
                     String lastNums = arrayNum[arrayNum.length-1];
                     if (lastNums != null) {
@@ -254,11 +275,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (lastNums.contains(".")) {   // 如果包含小数点
                             inputStr += s;
                         } else{
-                            if (lastNums.charAt(0) == '0'){
+                            if (lastNums.equals("0") || lastNums.equals("-0")){
                                 if (s.equals("0")){     //排除00的情况
                                     return;
                                 }else{
-                                    inputStr = inputStr.substring(0, inputStr.length()-2) + s;
+                                    if (inputStr.length() > 1) {
+                                        inputStr = inputStr.substring(0, inputStr.length() - 2) + s;
+                                    }else {
+                                        if (inputStr.equals("-")){
+                                            inputStr += s;
+                                        }else{
+                                            inputStr = s;
+                                        }
+                                    }
                                 }
                             }else{
                                 inputStr += s;
@@ -421,7 +450,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         text = findViewById(R.id.text_view);
-        formula_text = findViewById(R.id.formula_text);
 
         clear = findViewById(R.id.clear);
         per = findViewById(R.id.per);
@@ -490,6 +518,105 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         num_8.setOnClickListener(this);
         num_9.setOnClickListener(this);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 保存editview中的内容
+        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+        editor.putString("editview_text", inputStr);
+        editor.apply();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // 加载菜单
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        Intent intent;
+        String[] data;
+        switch (item.getItemId()){
+            case R.id.length:
+                data = new String[]{"厘米cm", "米m", "千米km", "英寸in"};
+                intent = new Intent(MainActivity.this, Conversion.class);
+                intent.putExtra("id", 1);
+                intent.putExtra("name", "长度换算");
+                intent.putExtra("data", data);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.volume:
+                data = new String[]{"cm³", "m³", "毫升ml", "升L"};
+                intent = new Intent(MainActivity.this, Conversion.class);
+                intent.putExtra("id", 2);
+                intent.putExtra("name", "体积换算");
+                intent.putExtra("data", data);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.decimal:
+                data = new String[]{"2进制", "8进制", "l0进制", "16进制"};
+                intent = new Intent(MainActivity.this, Conversion.class);
+                intent.putExtra("id", 3);
+                intent.putExtra("name", "进制换算");
+                intent.putExtra("data", data);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.rate:
+                data = new String[]{"人民币", "美元", "汇率", "更新时间"};
+                intent = new Intent(MainActivity.this, Conversion.class);
+                intent.putExtra("id", 4);
+                intent.putExtra("name", "实时汇率");
+                intent.putExtra("data", data);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.date:
+                Intent intent1 = new Intent(MainActivity.this, DataCalculator.class);
+                startActivity(intent1);
+                finish();
+                break;
+            case R.id.hihstory:
+                Intent intent2 = new Intent(MainActivity.this, HistoryCalculate.class);
+                startActivity(intent2);
+                finish();
+                break;
+            case R.id.help:
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setTitle("Help")
+                        .setMessage("You can do ...")
+                        .setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Toast.makeText(MainActivity.this, "欢迎使用计算器",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }).show();
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    // 保存计算历史
+    private void saveHistory(String inputStr){
+        LitePal.getDatabase();
+        int nums = LitePal.findAll(History.class).size();
+        History history = new History();
+        history.setId(nums+1);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy-MM-dd :HH-mm-ss");
+        Date date = new Date(System.currentTimeMillis());
+        history.setStr(inputStr + "   时间:" + simpleDateFormat.format(date));
+        history.save();
     }
 
 }

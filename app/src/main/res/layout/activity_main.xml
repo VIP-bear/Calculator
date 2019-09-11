@@ -7,24 +7,15 @@
     android:background="#0A0A0A"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/formula_text"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:gravity="right|top"
-        android:text=""
-        android:textSize="36sp"
-        android:textColor="#ffffff"/>
-
     <EditText
         android:id="@+id/text_view"
         android:layout_width="match_parent"
-        android:layout_height="190dp"
+        android:layout_height="240dp"
         android:gravity="bottom|end"
         android:focusable="false"
         android:scrollbars="vertical"
         android:text=""
-        android:textSize="32sp"
+        android:textSize="36sp"
         android:textColor="#ffffff" />
 
     <GridLayout
